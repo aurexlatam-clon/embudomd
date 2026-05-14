@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AUREX Academy — El Embudo: La Máquina de Cierres</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0A;--gold:#D4A843;--gold-light:#E8C06A;
+    --gold-dim:rgba(212,168,67,0.15);--gold-glow:rgba(212,168,67,0.07);
+    --white:#F5F5F0;--gray:#888880;--text:#D0CFC8;
+    --cyan:#00C9B1;--rose:#FF6B6B;--violet:#9B6DFF;
+    --green:#4CAF82;--orange:#FF8C42;--max:600px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:16px;line-height:1.75;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(212,168,67,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(212,168,67,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .progress-strip{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));z-index:100;box-shadow:0 0 8px rgba(212,168,67,0.6);transition:width 0.1s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+  @keyframes pulse{0%,100%{opacity:0.6;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
+
+  /* HERO */
+  .hero{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:72px 24px 48px;text-align:center;overflow:hidden;}
+  .hero-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(212,168,67,0.1) 0%,transparent 70%);pointer-events:none;animation:pulse 5s ease infinite;}
+  .module-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid rgba(212,168,67,0.3);border-radius:100px;padding:6px 16px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:24px;animation:fadeUp 0.8s ease both;position:relative;z-index:1;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 2s ease infinite;}
+  .hero-eyebrow{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:12px;animation:fadeUp 0.8s ease 0.05s both;position:relative;z-index:1;}
+  .hero-title{font-family:'Syne',sans-serif;font-size:clamp(30px,8vw,46px);font-weight:800;line-height:1.05;color:var(--white);margin-bottom:8px;animation:fadeUp 0.8s ease 0.1s both;position:relative;z-index:1;}
+  .hero-title span{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 60%,#F5D78E 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero-sub{font-size:13px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:28px;animation:fadeUp 0.8s ease 0.2s both;position:relative;z-index:1;}
+
+  /* VERDAD CENTRAL */
+  .verdad{
+    background:linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.03));
+    border:1px solid rgba(212,168,67,0.3);
+    border-radius:20px;padding:28px 24px;
+    margin-bottom:16px;text-align:center;
+    position:relative;overflow:hidden;
+    animation:fadeUp 0.8s ease 0.3s both;
+    z-index:1;
+  }
+  .verdad::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .verdad::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .verdad-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+  .verdad-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--white);line-height:1.35;}
+  .verdad-text span{color:var(--gold);}
+  .verdad-sub{margin-top:12px;font-size:14px;color:var(--gray);line-height:1.7;}
+
+  /* NAV */
+  .nav-map{position:relative;z-index:1;max-width:var(--max);margin:0 auto 40px;padding:0 20px;}
+  .nav-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:12px;text-align:center;}
+  .nav-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+  .nav-chip{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:7px 14px;font-size:12px;font-family:'Syne',sans-serif;color:var(--gray);text-decoration:none;transition:all 0.25s ease;}
+  .nav-chip:hover{background:var(--gold-dim);border-color:rgba(212,168,67,0.4);color:var(--gold);transform:translateY(-1px);}
+
+  /* MAIN */
+  .main{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:0 20px 80px;}
+
+  /* SECCIÓN */
+  .seccion{margin-bottom:56px;}
+  .sec-header{display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);}
+  .sec-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .sec-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);line-height:1.2;}
+  .sec-sub{font-size:11px;color:var(--gray);font-family:'Syne',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+  .s1 .sec-icon{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);}
+  .s2 .sec-icon{background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.3);}
+  .s3 .sec-icon{background:rgba(0,201,177,0.1);border:1px solid rgba(0,201,177,0.25);}
+  .s4 .sec-icon{background:rgba(155,109,255,0.1);border:1px solid rgba(155,109,255,0.25);}
+  .s5 .sec-icon{background:rgba(76,175,130,0.1);border:1px solid rgba(76,175,130,0.25);}
+
+  .intro-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px 20px;margin-bottom:20px;font-size:14.5px;color:var(--text);line-height:1.8;}
+  .intro-card strong{color:var(--white);}
+  .intro-card em{color:var(--gold);font-style:normal;font-weight:700;}
+
+  /* ERROR VS VERDAD */
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+  .vs-card{border-radius:14px;padding:16px;}
+  .vs-card.error{background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.2);}
+  .vs-card.verdad-c{background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.25);}
+  .vs-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+  .vs-card.error .vs-label{color:var(--rose);}
+  .vs-card.verdad-c .vs-label{color:var(--green);}
+  .vs-item{font-size:12px;color:var(--text);line-height:1.6;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+  .vs-item:last-child{border-bottom:none;}
+  .vs-item strong{color:var(--white);}
+
+  /* TIPOS DE EMBUDO */
+  .embudo-cards{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
+  .embudo-card{border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+  .embudo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .embudo-card.cine{background:linear-gradient(135deg,rgba(155,109,255,0.1),rgba(155,109,255,0.03));border:1px solid rgba(155,109,255,0.25);}
+  .embudo-card.cine::before{background:linear-gradient(90deg,transparent,var(--violet),transparent);}
+  .embudo-card.texto{background:linear-gradient(135deg,rgba(0,201,177,0.08),rgba(0,201,177,0.02));border:1px solid rgba(0,201,177,0.2);}
+  .embudo-card.texto::before{background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+  .embudo-card.generico{background:linear-gradient(135deg,rgba(212,168,67,0.1),rgba(212,168,67,0.03));border:1px solid rgba(212,168,67,0.25);}
+  .embudo-card.generico::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+
+  .embudo-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .embudo-icon{font-size:24px;}
+  .embudo-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white);}
+  .embudo-tag{font-size:10px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-left:auto;}
+  .embudo-card.cine .embudo-tag{background:rgba(155,109,255,0.15);color:var(--violet);border:1px solid rgba(155,109,255,0.25);}
+  .embudo-card.texto .embudo-tag{background:rgba(0,201,177,0.1);color:var(--cyan);border:1px solid rgba(0,201,177,0.2);}
+  .embudo-card.generico .embudo-tag{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(212,168,67,0.25);}
+
+  .embudo-desc{font-size:13.5px;color:var(--text);line-height:1.7;margin-bottom:12px;}
+  .embudo-desc strong{color:var(--white);}
+
+  .embudo-cuando{background:rgba(0,0,0,0.3);border-radius:10px;padding:10px 14px;}
+  .embudo-cuando-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:6px;}
+  .embudo-cuando-text{font-size:12.5px;color:var(--white);line-height:1.65;}
+  .embudo-cuando-text em{font-style:normal;}
+  .embudo-card.cine .embudo-cuando-text em{color:var(--violet);}
+  .embudo-card.texto .embudo-cuando-text em{color:var(--cyan);}
+  .embudo-card.generico .embudo-cuando-text em{color:var(--gold);}
+
+  /* FLUJO DEL EMBUDO */
+  .flujo-embudo{display:flex;flex-direction:column;gap:0;margin:16px 0;}
+  .fe-step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+  .fe-step:last-child{border-bottom:none;}
+  .fe-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+  .fe-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'Syne',sans-serif;font-weight:800;flex-shrink:0;}
+  .fe-line{width:2px;flex:1;min-height:14px;background:rgba(255,255,255,0.05);margin:3px auto;}
+  .fe-content{flex:1;padding-top:4px;}
+  .fe-num{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+  .fe-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--white);margin-bottom:4px;}
+  .fe-desc{font-size:13px;color:var(--text);line-height:1.65;}
+  .fe-desc strong{color:var(--white);}
+  .fe-desc em{color:var(--gold);font-style:normal;}
+
+  .fe-1 .fe-circle{background:rgba(212,168,67,0.12);color:var(--gold);border:1px solid rgba(212,168,67,0.25);}
+  .fe-1 .fe-num{color:var(--gold);}
+  .fe-2 .fe-circle{background:rgba(255,140,66,0.1);color:var(--orange);border:1px solid rgba(255,140,66,0.25);}
+  .fe-2 .fe-num{color:var(--orange);}
+  .fe-3 .fe-circle{background:rgba(0,201,177,0.1);color:var(--cyan);border:1px solid rgba(0,201,177,0.2);}
+  .fe-3 .fe-num{color:var(--cyan);}
+  .fe-4 .fe-circle{background:rgba(155,109,255,0.1);color:var(--violet);border:1px solid rgba(155,109,255,0.2);}
+  .fe-4 .fe-num{color:var(--violet);}
+  .fe-5 .fe-circle{background:rgba(76,175,130,0.1);color:var(--green);border:1px solid rgba(76,175,130,0.2);}
+  .fe-5 .fe-num{color:var(--green);}
+
+  /* REGLA DE ORO */
+  .regla-oro{
+    background:linear-gradient(135deg,rgba(212,168,67,0.15),rgba(212,168,67,0.04));
+    border:1px solid rgba(212,168,67,0.35);
+    border-radius:20px;padding:28px 24px;
+    margin:20px 0;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .regla-oro::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .regla-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+  .regla-text{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--white);line-height:1.35;margin-bottom:8px;}
+  .regla-text span{color:var(--gold);}
+  .regla-sub{font-size:13.5px;color:var(--gray);line-height:1.7;}
+
+  /* 80/20 */
+  .ratio-card{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    margin:20px 0;
+  }
+  .ratio-block{border-radius:16px;padding:20px;text-align:center;}
+  .ratio-block.escucha{background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);}
+  .ratio-block.habla{background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.15);}
+  .ratio-pct{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1;}
+  .ratio-block.escucha .ratio-pct{color:var(--green);}
+  .ratio-block.habla .ratio-pct{color:var(--rose);}
+  .ratio-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
+  .ratio-block.escucha .ratio-label{color:var(--green);}
+  .ratio-block.habla .ratio-label{color:var(--rose);}
+  .ratio-desc{font-size:12px;color:var(--gray);margin-top:6px;line-height:1.5;}
+
+  /* SOBREEXPLICAR */
+  .sobre-list{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+  .sobre-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,107,107,0.05);border:1px solid rgba(255,107,107,0.12);border-radius:12px;}
+  .sobre-icon{font-size:18px;flex-shrink:0;}
+  .sobre-text{font-size:13.5px;color:var(--text);}
+  .sobre-text strong{color:var(--rose);}
+
+  /* MATEMÁTICA DEL EMBUDO */
+  .math-card{
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:20px;padding:24px;margin:20px 0;
+  }
+  .math-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--white);margin-bottom:18px;text-align:center;}
+
+  .math-rows{display:flex;flex-direction:column;gap:10px;}
+  .math-row{display:flex;align-items:center;gap:10px;}
+  .math-input{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:8px;padding:8px 12px;
+    font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+    color:var(--gray);flex:0 0 80px;text-align:center;
+  }
+  .math-arrow{color:rgba(212,168,67,0.4);font-size:14px;flex-shrink:0;}
+  .math-output{
+    flex:1;border-radius:8px;padding:8px 12px;
+    font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+    text-align:left;
+  }
+  .math-row:nth-child(1) .math-input{background:rgba(212,168,67,0.08);color:var(--gold);border-color:rgba(212,168,67,0.2);}
+  .math-row:nth-child(1) .math-output{background:rgba(212,168,67,0.06);color:var(--gold);border:1px solid rgba(212,168,67,0.15);}
+  .math-row:nth-child(2) .math-input{background:rgba(0,201,177,0.08);color:var(--cyan);border-color:rgba(0,201,177,0.2);}
+  .math-row:nth-child(2) .math-output{background:rgba(0,201,177,0.06);color:var(--cyan);border:1px solid rgba(0,201,177,0.15);}
+  .math-row:nth-child(3) .math-input{background:rgba(155,109,255,0.08);color:var(--violet);border-color:rgba(155,109,255,0.2);}
+  .math-row:nth-child(3) .math-output{background:rgba(155,109,255,0.06);color:var(--violet);border:1px solid rgba(155,109,255,0.15);}
+  .math-conclusion{
+    margin-top:16px;padding:14px 16px;
+    background:linear-gradient(135deg,rgba(76,175,130,0.1),rgba(76,175,130,0.03));
+    border:1px solid rgba(76,175,130,0.25);border-radius:12px;
+    font-size:13.5px;color:var(--white);line-height:1.7;text-align:center;
+  }
+  .math-conclusion strong{color:var(--green);}
+
+  /* COPIA BOX */
+  .copy-box{background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-top:12px;}
+  .copy-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:8px;}
+  .copy-text{font-size:13px;color:var(--white);line-height:1.75;margin-bottom:12px;}
+  .copy-text em{color:var(--gold);font-style:normal;}
+  .copy-btn{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(212,168,67,0.3);border-radius:8px;padding:8px 16px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--gold);cursor:pointer;transition:all 0.25s ease;letter-spacing:1px;text-transform:uppercase;}
+  .copy-btn:hover{background:rgba(212,168,67,0.25);transform:translateY(-1px);}
+  .copy-btn.copied{background:rgba(76,175,130,0.15);color:var(--green);border-color:rgba(76,175,130,0.3);}
+
+  /* PRÓXIMO */
+  .proximo{
+    background:linear-gradient(135deg,rgba(212,168,67,0.08),rgba(212,168,67,0.02));
+    border:1px dashed rgba(212,168,67,0.3);
+    border-radius:16px;padding:20px 22px;
+    display:flex;align-items:center;gap:14px;margin:20px 0;
+  }
+  .proximo-icon{font-size:28px;flex-shrink:0;}
+  .proximo-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+  .proximo-text{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--white);margin-bottom:3px;}
+  .proximo-sub{font-size:12px;color:var(--gray);}
+
+  /* DIVIDER */
+  .divider{display:flex;align-items:center;gap:16px;margin:36px 0;}
+  .divider-line{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(212,168,67,0.2),transparent);}
+  .divider-icon{font-size:16px;}
+
+  /* CTA */
+  .cta-bottom{text-align:center;padding:48px 0 20px;}
+  .cta-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--white);margin-bottom:10px;line-height:1.3;}
+  .cta-title span{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .cta-sub{font-size:14px;color:var(--gray);margin-bottom:28px;}
+  .cta-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),#C49535);color:#0A0A0A;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:16px 32px;border-radius:100px;cursor:pointer;border:none;box-shadow:0 8px 32px rgba(212,168,67,0.35);transition:all 0.3s ease;text-decoration:none;}
+  .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(212,168,67,0.5);}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .particle{position:fixed;width:2px;height:2px;border-radius:50%;background:var(--gold);opacity:0;pointer-events:none;z-index:0;animation:floatP var(--dur,9s) ease-in-out var(--delay,0s) infinite;}
+  @keyframes floatP{0%{opacity:0;transform:translateY(100vh);}10%{opacity:0.4;}90%{opacity:0.1;}100%{opacity:0;transform:translateY(-80px);}}
+</style>
+</head>
+<body>
+<div class="progress-strip" id="progressBar"></div>
+<div class="particle" style="left:10%;--dur:10s;--delay:0s;"></div>
+<div class="particle" style="left:45%;--dur:13s;--delay:2s;"></div>
+<div class="particle" style="left:80%;--dur:9s;--delay:1s;"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="module-badge"><span class="dot"></span> AUREX Academy · Módulo 5</div>
+  <div class="hero-eyebrow">La herramienta que cierra por ti</div>
+  <h1 class="hero-title">El Embudo:<br><span>La Máquina de Cierres</span></h1>
+  <p class="hero-sub">Estrategia · Metodología · Resultados</p>
+
+  <div class="verdad">
+    <div class="verdad-label">⚡ La verdad que cambia todo</div>
+    <div class="verdad-text">El embudo <span>no es para explicar.</span><br>Es para <span>filtrar, calentar</span><br>y <span>preparar al prospecto.</span></div>
+    <div class="verdad-sub">Quien entiende esto cierra más.<br>Quien no lo entiende trabaja el doble y vende la mitad.</div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav class="nav-map reveal">
+  <div class="nav-label">Ir directo a una sección</div>
+  <div class="nav-grid">
+    <a class="nav-chip" href="#s1">❌ El error más común</a>
+    <a class="nav-chip" href="#s2">🔧 Tipos de embudo</a>
+    <a class="nav-chip" href="#s3">🔄 El flujo correcto</a>
+    <a class="nav-chip" href="#s4">🤐 La regla del 80/20</a>
+    <a class="nav-chip" href="#s5">📊 La matemática</a>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ══════════════════════════════
+     S1 — EL ERROR MÁS COMÚN
+══════════════════════════════ -->
+<section class="seccion s1 reveal" id="s1">
+  <div class="sec-header">
+    <div class="sec-icon">❌</div>
+    <div><div class="sec-title">El Error que Mata tus Cierres</div><div class="sec-sub">Por qué el link no se manda por mandar</div></div>
+  </div>
+
+  <div class="intro-card">
+    El error más cometido en network marketing digital es este:
+    <em>mandar el link del embudo a cualquier persona, sin contexto, sin interés previo, esperando que "algo pase."</em>
+    <strong>Eso no es usar el embudo — es desperdiciar tu herramienta más poderosa.</strong>
+  </div>
+
+  <div class="vs-grid reveal">
+    <div class="vs-card error">
+      <div class="vs-label">❌ Mentalidad incorrecta</div>
+      <div class="vs-item">Mando el link a todos</div>
+      <div class="vs-item">Lo explico todo por chat</div>
+      <div class="vs-item">Persigo sin detectar interés</div>
+      <div class="vs-item">Comparto sin contexto</div>
+      <div class="vs-item">Saturó y no hubo cierre</div>
+    </div>
+    <div class="vs-card verdad-c">
+      <div class="vs-label">✅ Mentalidad correcta</div>
+      <div class="vs-item"><strong>El link se gana</strong></div>
+      <div class="vs-item">El embudo explica por mí</div>
+      <div class="vs-item">Detecto interés primero</div>
+      <div class="vs-item">Preparo antes de compartir</div>
+      <div class="vs-item">Prospecto llega listo al Zoom</div>
+    </div>
+  </div>
+
+  <div class="regla-oro reveal">
+    <div class="regla-label">🔑 Regla de oro</div>
+    <div class="regla-text">El link se comparte solo cuando<br>hay <span>interés genuino confirmado.</span></div>
+    <div class="regla-sub">No antes. Nunca por cortesía. Nunca para "ver qué pasa."<br>Cada link que mandas sin interés real es ruido — y el ruido destruye tu posicionamiento.</div>
+  </div>
+</section>
+
+<div class="divider reveal"><div class="divider-line"></div><div class="divider-icon">🔧</div><div class="divider-line"></div></div>
+
+<!-- ══════════════════════════════
+     S2 — TIPOS DE EMBUDO
+══════════════════════════════ -->
+<section class="seccion s2 reveal" id="s2">
+  <div class="sec-header">
+    <div class="sec-icon">🔧</div>
+    <div><div class="sec-title">Tipos de Embudo</div><div class="sec-sub">Herramienta correcta en el momento correcto</div></div>
+  </div>
+
+  <div class="intro-card">
+    No existe un solo tipo de embudo perfecto para todos los casos.
+    <strong>Un buen networker sabe qué herramienta usar según el prospecto y el momento.</strong>
+    Aquí están los 3 tipos y cuándo usar cada uno.
+  </div>
+
+  <div class="embudo-cards reveal">
+
+    <div class="embudo-card cine">
+      <div class="embudo-top">
+        <span class="embudo-icon">🎬</span>
+        <div class="embudo-name">Embudo Cinematográfico</div>
+        <div class="embudo-tag">Alto impacto</div>
+      </div>
+      <div class="embudo-desc">
+        Producción de alto nivel con video, música y narrativa emocional. <strong>Genera impacto inmediato y credibilidad instantánea.</strong> Es tu arma de primera impresión para prospectos que no conocen AUREX.
+      </div>
+      <div class="embudo-cuando">
+        <div class="embudo-cuando-label">Úsalo cuando:</div>
+        <div class="embudo-cuando-text">
+          <em>✓</em> El prospecto es nuevo y no sabe nada de AUREX<br>
+          <em>✓</em> Quieres generar impacto y credibilidad desde el primer contacto<br>
+          <em>✓</em> El prospecto tiene buena conexión a internet<br>
+          <em>✓</em> Es alguien que valora la presentación visual y profesional
+        </div>
+      </div>
+    </div>
+
+    <div class="embudo-card texto">
+      <div class="embudo-top">
+        <span class="embudo-icon">📄</span>
+        <div class="embudo-name">Embudo de Texto / Simple</div>
+        <div class="embudo-tag">Rápido y directo</div>
+      </div>
+      <div class="embudo-desc">
+        Landing page de texto estructurado que va al grano. <strong>Carga instantáneo, funciona con cualquier señal y es fácil de leer a cualquier hora.</strong> Ideal para quien quiere información concreta sin rodeos.
+      </div>
+      <div class="embudo-cuando">
+        <div class="embudo-cuando-label">Úsalo cuando:</div>
+        <div class="embudo-cuando-text">
+          <em>✓</em> El prospecto ya mostró interés y quiere detalles rápidos<br>
+          <em>✓</em> Hay mala conexión o el prospecto está ocupado<br>
+          <em>✓</em> El prospecto es analítico — prefiere leer que ver videos<br>
+          <em>✓</em> Quieres un segundo impacto después del embudo cinematográfico
+        </div>
+      </div>
+    </div>
+
+    <div class="embudo-card generico">
+      <div class="embudo-top">
+        <span class="embudo-icon">🌐</span>
+        <div class="embudo-name">Embudo Genérico de Oportunidad</div>
+        <div class="embudo-tag">Próximamente</div>
+      </div>
+      <div class="embudo-desc">
+        Una landing page universal que cualquier miembro del equipo puede usar y personalizar. <strong>Diseñada para funcionar sin video y sin producción — solo estructura, copy y llamada a la acción.</strong>
+      </div>
+      <div class="embudo-cuando">
+        <div class="embudo-cuando-label">Úsalo cuando:</div>
+        <div class="embudo-cuando-text">
+          <em>✓</em> El prospecto está en zona con muy mala conexión<br>
+          <em>✓</em> Necesitas compartir algo rápido en grupos o foros<br>
+          <em>✓</em> Quieres duplicar el sistema a tu equipo de forma sencilla<br>
+          <em>✓</em> Es el primer contacto digital sin contexto previo
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="proximo reveal">
+    <span class="proximo-icon">🚀</span>
+    <div>
+      <div class="proximo-label">Próximamente disponible</div>
+      <div class="proximo-text">Embudo Genérico AUREX — Lista para usar</div>
+      <div class="proximo-sub">Una landing page que cualquier miembro puede activar en minutos. Sin video, sin producción. Solo estructura, copy y resultados.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider reveal"><div class="divider-line"></div><div class="divider-icon">🔄</div><div class="divider-line"></div></div>
+
+<!-- ══════════════════════════════
+     S3 — EL FLUJO CORRECTO
+══════════════════════════════ -->
+<section class="seccion s3 reveal" id="s3">
+  <div class="sec-header">
+    <div class="sec-icon">🔄</div>
+    <div><div class="sec-title">El Flujo Correcto del Embudo</div><div class="sec-sub">Los 5 pasos que convierten vistas en cierres</div></div>
+  </div>
+
+  <div class="intro-card">
+    El embudo no funciona solo. Funciona dentro de un sistema.
+    <strong>Cada paso tiene un objetivo específico — saltarte uno rompe la cadena.</strong>
+    Aquí está el flujo completo de cómo debe usarse.
+  </div>
+
+  <div class="flujo-embudo reveal">
+
+    <div class="fe-step fe-1">
+      <div class="fe-left"><div class="fe-circle">1</div><div class="fe-line"></div></div>
+      <div class="fe-content">
+        <div class="fe-num" >Paso 1 · Generar curiosidad</div>
+        <div class="fe-title">Tu contenido despierta el interés</div>
+        <div class="fe-desc">Stories, estados, publicaciones del banco AUREX. <strong>Tu trabajo aquí es sembrar — no vender.</strong> La persona ve algo que le genera una pregunta en la cabeza. Todavía no hay link. No hay explicación. Solo <em>curiosidad activada.</em></div>
+      </div>
+    </div>
+
+    <div class="fe-step fe-2">
+      <div class="fe-left"><div class="fe-circle">2</div><div class="fe-line"></div></div>
+      <div class="fe-content">
+        <div class="fe-num">Paso 2 · Detectar interés real</div>
+        <div class="fe-title">La conversación confirma si hay terreno</div>
+        <div class="fe-desc">Un saludo, una pregunta clave, escuchar más que hablar. <strong>Si hay interés genuino, el prospecto lo dice — o lo muestra.</strong> Si no hay interés, no hay embudo. Sigues cultivando. <em>El link se gana aquí.</em></div>
+      </div>
+    </div>
+
+    <div class="fe-step fe-3">
+      <div class="fe-left"><div class="fe-circle">3</div><div class="fe-line"></div></div>
+      <div class="fe-content">
+        <div class="fe-num">Paso 3 · Compartir el acceso</div>
+        <div class="fe-title">El embudo hace el trabajo pesado</div>
+        <div class="fe-desc">Con el interés confirmado mandas el link — con un mensaje corto que prepara al prospecto para lo que va a ver. <strong>No expliques lo que el embudo ya va a explicar.</strong> Confía en la herramienta. <em>Tu trabajo aquí terminó temporalmente.</em></div>
+        <div class="copy-box" style="margin-top:12px;">
+          <div class="copy-label">📋 Mensaje para acompañar el link</div>
+          <div class="copy-text">
+            "Te comparto la información completa para que la revises con calma. Tiene todo explicado — al final dime qué te pareció 😊<br>
+            👇 [link del embudo]"
+          </div>
+          <button class="copy-btn" onclick="copyText(this,'Te comparto la información completa para que la revises con calma. Tiene todo explicado — al final dime qué te pareció 😊\n👇 [link del embudo]')">📋 Copiar mensaje</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fe-step fe-4">
+      <div class="fe-left"><div class="fe-circle">4</div><div class="fe-line"></div></div>
+      <div class="fe-content">
+        <div class="fe-num">Paso 4 · Esperar la reacción</div>
+        <div class="fe-title">Da tiempo — pero no demasiado</div>
+        <div class="fe-desc">Entre 1 y 3 horas después de mandar el link. <strong>No preguntes cada 20 minutos si ya lo vieron.</strong> Eso genera presión y mata el interés. Espera con seguridad — un buen embudo hace su trabajo solo. <em>Después viene el seguimiento.</em></div>
+      </div>
+    </div>
+
+    <div class="fe-step fe-5">
+      <div class="fe-left"><div class="fe-circle">5</div></div>
+      <div class="fe-content">
+        <div class="fe-num">Paso 5 · Seguimiento y Zoom</div>
+        <div class="fe-title">Aquí es donde ocurre el cierre</div>
+        <div class="fe-desc">El embudo informó. Tú conectas, resuelves dudas y propones el Zoom. <strong>El cierre no ocurre en el embudo — ocurre en la conversación posterior.</strong> El embudo solo prepara el terreno. <em>Tú cierras.</em></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider reveal"><div class="divider-line"></div><div class="divider-icon">🤐</div><div class="divider-line"></div></div>
+
+<!-- ══════════════════════════════
+     S4 — LA REGLA DEL 80/20
+══════════════════════════════ -->
+<section class="seccion s4 reveal" id="s4">
+  <div class="sec-header">
+    <div class="sec-icon">🤐</div>
+    <div><div class="sec-title">La Regla del 80/20</div><div class="sec-sub">El que habla demasiado pierde</div></div>
+  </div>
+
+  <div class="intro-card">
+    En el proceso de prospectar hay una regla que los mejores cerradores del mundo aplican sin excepción.
+    <strong>No es sobre qué decir. Es sobre cuánto escuchar.</strong>
+  </div>
+
+  <div class="ratio-card reveal">
+    <div class="ratio-block escucha">
+      <div class="ratio-pct">80%</div>
+      <div class="ratio-label">Escuchas</div>
+      <div class="ratio-desc">Preguntas. Entiendes. Detectas el dolor real. El prospecto habla.</div>
+    </div>
+    <div class="ratio-block habla">
+      <div class="ratio-pct">20%</div>
+      <div class="ratio-label">Hablas</div>
+      <div class="ratio-desc">Diriges. Propones el siguiente paso. Mandas el link. Propones el Zoom.</div>
+    </div>
+  </div>
+
+  <div class="intro-card reveal">
+    <strong>¿Por qué funciona así?</strong><br><br>
+    Porque la gente no compra lo que tú quieres venderles. <em>Compra la solución a su propio problema.</em>
+    Si escuchas el 80% del tiempo, el prospecto te dice exactamente qué necesita — y tú solo tienes que mostrarle cómo AUREX lo resuelve.
+  </div>
+
+  <div class="intro-card reveal" style="border-color:rgba(255,107,107,0.2);background:rgba(255,107,107,0.04);">
+    <strong>Qué pasa cuando sobreexplicas:</strong>
+  </div>
+
+  <div class="sobre-list reveal">
+    <div class="sobre-item"><span class="sobre-icon">💥</span><div class="sobre-text"><strong>Complicas</strong> lo que el embudo ya explica simple</div></div>
+    <div class="sobre-item"><span class="sobre-icon">🧠</span><div class="sobre-text"><strong>Saturas</strong> al prospecto con información que no pidió</div></div>
+    <div class="sobre-item"><span class="sobre-icon">❓</span><div class="sobre-text"><strong>Rompes la curiosidad</strong> — el mayor activo que tienes</div></div>
+    <div class="sobre-item"><span class="sobre-icon">🚪</span><div class="sobre-text"><strong>Le das razones para decir no</strong> antes de ver el embudo</div></div>
+    <div class="sobre-item"><span class="sobre-icon">📉</span><div class="sobre-text"><strong>Haces el trabajo del embudo</strong> — pero peor y sin sistema</div></div>
+  </div>
+
+  <div class="regla-oro reveal" style="margin-top:24px;">
+    <div class="regla-label">💡 La mentalidad correcta</div>
+    <div class="regla-text">El chat es para <span>abrir la conversación</span><br>y <span>detectar interés.</span></div>
+    <div class="regla-sub">No para dar toda la información. No para convencer. No para vender.<br>Para eso existe el embudo. Confía en el sistema.</div>
+  </div>
+</section>
+
+<div class="divider reveal"><div class="divider-line"></div><div class="divider-icon">📊</div><div class="divider-line"></div></div>
+
+<!-- ══════════════════════════════
+     S5 — LA MATEMÁTICA DEL EMBUDO
+══════════════════════════════ -->
+<section class="seccion s5 reveal" id="s5">
+  <div class="sec-header">
+    <div class="sec-icon">📊</div>
+    <div><div class="sec-title">La Matemática del Embudo</div><div class="sec-sub">Por qué la constancia siempre gana</div></div>
+  </div>
+
+  <div class="intro-card">
+    El éxito en este sistema <strong>no depende de emoción momentánea.</strong>
+    Depende de entender los números y trabajar con constancia.
+    No todos van a entrar. No todos van a responder. <em>Y eso es exactamente normal.</em>
+  </div>
+
+  <div class="math-card reveal">
+    <div class="math-title">📈 Así funcionan los porcentajes reales</div>
+    <div class="math-rows">
+      <div class="math-row">
+        <div class="math-input">10 links</div>
+        <div class="math-arrow">→</div>
+        <div class="math-output">~2 interesados · 0-1 cierres</div>
+      </div>
+      <div class="math-row">
+        <div class="math-input">50 links</div>
+        <div class="math-arrow">→</div>
+        <div class="math-output">~10 interesados · 2-3 cierres</div>
+      </div>
+      <div class="math-row">
+        <div class="math-input">100 links</div>
+        <div class="math-arrow">→</div>
+        <div class="math-output">~20 interesados · 5-6 cierres</div>
+      </div>
+    </div>
+    <div class="math-conclusion">
+      El sistema no falla. <strong>Lo que falla es parar antes de que los números trabajen.</strong><br>
+      Consistencia + Volumen inteligente = Resultados predecibles.
+    </div>
+  </div>
+
+  <div class="intro-card reveal">
+    <strong>¿Qué significa "volumen inteligente"?</strong><br><br>
+    No es mandar links a ciegas. Es tener un flujo constante de prospectos <em>calificados</em> entrando al embudo desde múltiples canales:
+  </div>
+
+  <div class="vs-grid reveal" style="grid-template-columns:repeat(3,1fr);">
+    <div class="vs-card verdad-c" style="text-align:center;">
+      <div class="vs-label" style="font-size:8px;">Canal</div>
+      <div style="font-size:22px;margin:6px 0;">💬</div>
+      <div class="vs-item" style="border:none;font-size:11px;font-weight:700;color:var(--white);">WhatsApp</div>
+    </div>
+    <div class="vs-card verdad-c" style="text-align:center;">
+      <div class="vs-label" style="font-size:8px;">Canal</div>
+      <div style="font-size:22px;margin:6px 0;">📸</div>
+      <div class="vs-item" style="border:none;font-size:11px;font-weight:700;color:var(--white);">Instagram</div>
+    </div>
+    <div class="vs-card verdad-c" style="text-align:center;">
+      <div class="vs-label" style="font-size:8px;">Canal</div>
+      <div style="font-size:22px;margin:6px 0;">👥</div>
+      <div class="vs-item" style="border:none;font-size:11px;font-weight:700;color:var(--white);">Facebook</div>
+    </div>
+  </div>
+
+  <div class="regla-oro reveal" style="margin-top:20px;">
+    <div class="regla-label">🎯 La conclusión que lo cambia todo</div>
+    <div class="regla-text">El marketing no es magia.<br>Es <span>estructura, repetición</span> y <span>consistencia.</span></div>
+    <div class="regla-sub">Tienes el sistema. Tienes el embudo. Tienes la metodología.<br>Tienes las herramientas correctas.<br><br>
+    <strong style="color:var(--white);">Ahora toca ejecutar con enfoque, paciencia y volumen.<br>Porque cuando el sistema se usa correctamente — los resultados son predecibles.</strong></div>
+  </div>
+
+</section>
+
+
+
+</main>
+
+<script>
+  window.addEventListener('scroll',()=>{
+    const pct=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100;
+    document.getElementById('progressBar').style.width=pct+'%';
+  });
+  const reveals=document.querySelectorAll('.reveal');
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);obs.unobserve(e.target);}});
+  },{threshold:0.08});
+  reveals.forEach(el=>obs.observe(el));
+
+  function copyText(btn,text){
+    const fb=()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);};
+    navigator.clipboard?navigator.clipboard.writeText(text).catch(fb):fb();
+    const orig=btn.innerHTML;btn.innerHTML='✅ Copiado';btn.classList.add('copied');
+    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+  }
+</script>
+<div style="text-align:center;padding:40px 20px 60px;position:relative;z-index:1;">
+  <div style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#D4A843,#C49535);color:#0A0A0A;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:16px 32px;border-radius:100px;box-shadow:0 8px 32px rgba(212,168,67,0.35);">
+    💡 ¡Dominas el embudo! Ahora a ejecutar
+  </div>
+</div>
+</body>
+</html>
